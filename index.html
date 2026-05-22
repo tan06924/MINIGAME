@@ -710,19 +710,43 @@ function drawWheel(rot) {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Text
+    // Text — split emoji and label, draw 2 lines
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(start + arc / 2);
-    const fontSize = N > 16 ? 11 : N > 12 ? 12 : 13;
-    ctx.font = `600 ${fontSize}px 'Kanit', sans-serif`;
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 6;
     ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    const txt = segments[i].label.length > 18 ? segments[i].label.slice(0,17)+'…' : segments[i].label;
-    ctx.fillText(txt, r - 12, 0);
+
+    // extract emoji
+    const emojiMatch = segments[i].label.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/u);
+    const emoji = emojiMatch ? emojiMatch[0] : '';
+    const textOnly = segments[i].label.replace(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu,'').trim();
+    const maxChars = N > 14 ? 8 : N > 10 ? 10 : 12;
+    const txt = textOnly.length > maxChars ? textOnly.slice(0, maxChars-1)+'…' : textOnly;
+
+    const baseFontSize = N > 16 ? 18 : N > 12 ? 20 : 22;
+    const emojiFontSize = N > 16 ? 22 : N > 12 ? 26 : 30;
+    const textX = r - 16;
+
+    if (emoji && txt) {
+      // emoji top, text bottom
+      ctx.font = `${emojiFontSize}px serif`;
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(emoji, textX, -4);
+
+      ctx.font = `700 ${baseFontSize}px 'Kanit', sans-serif`;
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'top';
+      ctx.fillText(txt, textX, 6);
+    } else {
+      // single line
+      ctx.font = `700 ${baseFontSize}px 'Kanit', sans-serif`;
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(txt || emoji, textX, 0);
+    }
     ctx.restore();
   }
 
