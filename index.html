@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍺 วงล้อดื่มเหล้า</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D0D1A;
+  --bg2: #16162A;
+  --bg3: #1E1E35;
+  --border: rgba(255,255,255,0.08);
+  --text: #F0F0FF;
+  --text2: #9090B0;
+  --accent: #FF2D55;
+  --accent2: #FF6B35;
+  --green: #30D158;
+  --purple: #BF5AF2;
+  --blue: #64D2FF;
+  --yellow: #FFD60A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Kanit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Starfield background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(191,90,242,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,45,85,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 60% 10%, rgba(100,210,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+header h1 {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #FF2D55 0%, #FF6B35 40%, #FFD60A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+header p {
+  color: var(--text2);
+  font-size: 0.95rem;
+  margin-top: 6px;
+}
+
+/* Tab navigation */
+.tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 6px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text2);
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn.active {
+  background: linear-gradient(135deg, #FF2D55, #FF6B35);
+  color: #fff;
+}
+
+/* Panels */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Main game layout */
+.game-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 680px) {
+  .game-layout { grid-template-columns: 1fr; }
+}
+
+/* Wheel area */
+.wheel-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.wheel-wrap {
+  position: relative;
+  width: min(340px, 90vw);
+  height: min(340px, 90vw);
+}
+.wheel-wrap canvas {
+  border-radius: 50%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 30px rgba(255,45,85,0.3));
+}
+#pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-top: 36px solid #FF2D55;
+  filter: drop-shadow(0 0 8px rgba(255,45,85,0.8));
+  z-index: 10;
+}
+
+.spin-btn {
+  padding: 16px 56px;
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FF2D55 0%, #FF6B35 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 24px rgba(255,45,85,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.spin-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: linear-gradient(transparent, rgba(255,255,255,0.15), transparent);
+  transform: rotate(45deg) translateY(-100%);
+  transition: transform 0.5s;
+}
+.spin-btn:hover::after { transform: rotate(45deg) translateY(100%); }
+.spin-btn:hover { transform: scale(1.05); box-shadow: 0 6px 32px rgba(255,45,85,0.7); }
+.spin-btn:active { transform: scale(0.97); }
+.spin-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* Result card */
+.result-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+  transition: border-color 0.4s, background 0.4s;
+  width: 100%;
+  max-width: 340px;
+}
+.result-label { font-size: 0.8rem; color: var(--text2); margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+.result-text { font-size: 1.4rem; font-weight: 700; line-height: 1.3; }
+.result-player { font-size: 0.85rem; color: var(--text2); margin-top: 4px; }
+
+/* Side panel */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Card */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.2rem;
+}
+.card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text2);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Players */
+.players-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.player-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 6px 12px 6px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.player-chip.active { border-color: var(--green); color: var(--green); }
+.player-chip .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text2);
+  flex-shrink: 0;
+}
+.player-chip.active .dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.remove-player {
+  background: none; border: none; color: var(--text2);
+  cursor: pointer; font-size: 1rem; line-height: 1;
+  padding: 0 0 0 4px;
+  transition: color 0.2s;
+}
+.remove-player:hover { color: var(--accent); }
+
+.add-player-row {
+  display: flex;
+  gap: 8px;
+}
+.add-player-row input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.add-player-row input:focus { border-color: rgba(255,45,85,0.5); }
+.add-player-row input::placeholder { color: var(--text2); }
+.add-btn {
+  background: var(--bg3);
+  border: 1px solid rgba(255,45,85,0.4);
+  border-radius: 10px;
+  color: var(--accent);
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.2rem;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.add-btn:hover { background: rgba(255,45,85,0.15); }
+
+/* Stats */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.stat-box {
+  background: var(--bg3);
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.stat-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+.stat-lbl { font-size: 0.72rem; color: var(--text2); margin-top: 2px; }
+
+/* History */
+.history-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  animation: slideIn 0.3s ease;
+}
+.history-item .hi-num { color: var(--text2); font-size: 0.75rem; min-width: 18px; }
+.history-item .hi-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.history-item .hi-text { flex: 1; }
+.history-item .hi-player { color: var(--text2); font-size: 0.78rem; }
+@keyframes slideIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+
+/* Sound toggle */
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+.toggle-switch {
+  position: relative;
+  width: 40px; height: 22px;
+}
+.toggle-switch input { display: none; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: var(--text2);
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: transform 0.2s, background 0.2s;
+}
+.toggle-switch input:checked + .toggle-track { background: rgba(255,45,85,0.3); border-color: var(--accent); }
+.toggle-switch input:checked + .toggle-track::after { transform: translateX(18px); background: var(--accent); }
+
+/* Segments editor */
+.seg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.seg-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  animation: slideIn 0.3s ease;
+}
+.seg-color {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  border: 2px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.seg-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+}
+.seg-del {
+  background: none; border: none;
+  color: var(--text2); cursor: pointer;
+  font-size: 1.1rem; padding: 2px 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.seg-del:hover { background: rgba(255,45,85,0.15); color: var(--accent); }
+
+.add-seg-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.add-seg-row input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.add-seg-row input:focus { border-color: rgba(255,45,85,0.5); }
+.add-seg-row input::placeholder { color: var(--text2); }
+.add-seg-btn {
+  background: linear-gradient(135deg, #FF2D55, #FF6B35);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.add-seg-btn:hover { opacity: 0.9; }
+
+.seg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.seg-count {
+  font-size: 0.8rem;
+  color: var(--text2);
+  background: var(--bg3);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+.reset-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text2);
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.82rem;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Pop animation */
+.pop { animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes pop { 0%{transform:scale(0.6);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+/* Random player flash */
+.player-chip.flash {
+  animation: flash 0.15s ease alternate infinite;
+}
+@keyframes flash {
+  from { background: var(--bg3); }
+  to { background: rgba(255,45,85,0.3); border-color: var(--accent); }
+}
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid rgba(255,45,85,0.3);
+  border-radius: 24px;
+  padding: 2rem;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+  animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 60px rgba(255,45,85,0.2);
+}
+.modal-emoji { font-size: 3.5rem; margin-bottom: 0.5rem; }
+.modal-action { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.4rem; }
+.modal-player { font-size: 1rem; color: var(--text2); margin-bottom: 1.5rem; }
+.modal-close {
+  background: linear-gradient(135deg, #FF2D55, #FF6B35);
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  font-family: 'Kanit', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 12px 36px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255,45,85,0.4);
+}
+.modal-close:hover { opacity: 0.9; }
+
+/* Clear history btn */
+.clear-btn {
+  background: none; border: none;
+  color: var(--text2); font-family: 'Kanit', sans-serif;
+  font-size: 0.78rem; cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+.clear-btn:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Modal -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal">
+    <div class="modal-emoji" id="modalEmoji">🎯</div>
+    <div class="modal-action" id="modalAction">—</div>
+    <div class="modal-player" id="modalPlayer"></div>
+    <button class="modal-close" onclick="closeModal()">ตกลง! 🍺</button>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <h1>🍺 วงล้อดื่มเหล้า</h1>
+    <p>หมุนวงล้อ แล้วรับโทษ! ดื่มให้สนุก 🎉</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('game')">🎮 เล่นเกม</button>
+    <button class="tab-btn" onclick="switchTab('settings')">⚙️ ตั้งค่า</button>
+  </div>
+
+  <!-- Game Panel -->
+  <div class="panel active" id="panel-game">
+    <div class="game-layout">
+      <!-- Left: Wheel -->
+      <div class="wheel-section">
+        <div class="wheel-wrap">
+          <div id="pointer"></div>
+          <canvas id="wheel" width="500" height="500"></canvas>
+        </div>
+        <button class="spin-btn" id="spinBtn" onclick="spin()">🎰 หมุนวงล้อ!</button>
+        <div class="result-card" id="resultCard">
+          <div class="result-label">ผลลัพธ์ล่าสุด</div>
+          <div class="result-text" id="resultText">กดปุ่มหมุนวงล้อ 🎯</div>
+          <div class="result-player" id="resultPlayer"></div>
+        </div>
+      </div>
+
+      <!-- Right: Side panel -->
+      <div class="side-panel">
+        <!-- Stats -->
+        <div class="card">
+          <div class="card-title">📊 สถิติ</div>
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-num" id="statSpin">0</div>
+              <div class="stat-lbl">หมุน</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="statDrink" style="color:var(--blue)">0</div>
+              <div class="stat-lbl">ดื่มรวม</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="statSafe" style="color:var(--green)">0</div>
+              <div class="stat-lbl">รอด</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Players -->
+        <div class="card">
+          <div class="card-title">👥 ผู้เล่น</div>
+          <div class="players-grid" id="playersGrid"></div>
+          <div class="add-player-row">
+            <input type="text" id="playerInput" placeholder="ชื่อผู้เล่น..." maxlength="16" onkeydown="if(event.key==='Enter')addPlayer()">
+            <button class="add-btn" onclick="addPlayer()">+</button>
+          </div>
+        </div>
+
+        <!-- Sound -->
+        <div class="card">
+          <div class="card-title">🔊 เสียง</div>
+          <div class="sound-toggle">
+            <label class="toggle-switch">
+              <input type="checkbox" id="soundToggle" checked>
+              <div class="toggle-track"></div>
+            </label>
+            <span>เปิด/ปิดเสียง</span>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div class="card">
+          <div class="card-title" style="justify-content:space-between">
+            <span>📜 ประวัติ</span>
+            <button class="clear-btn" onclick="clearHistory()">ล้าง</button>
+          </div>
+          <div class="history-list" id="historyList">
+            <div style="color:var(--text2);font-size:0.82rem;text-align:center;padding:12px">ยังไม่มีผล</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Panel -->
+  <div class="panel" id="panel-settings">
+    <div class="card">
+      <div class="seg-header">
+        <div class="card-title" style="margin-bottom:0">🎯 ช่องในวงล้อ</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="seg-count" id="segCount">12 ช่อง</span>
+          <button class="reset-btn" onclick="resetSegments()">รีเซ็ต</button>
+        </div>
+      </div>
+      <div class="seg-list" id="segList"></div>
+      <div class="add-seg-row">
+        <input type="text" id="segInput" placeholder="เพิ่มช่องใหม่... (เช่น ดื่ม 5 วิ 🍹)" maxlength="30" onkeydown="if(event.key==='Enter')addSegment()">
+        <button class="add-seg-btn" onclick="addSegment()">+ เพิ่ม</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const COLORS = [
+  '#FF2D55','#30D158','#FF9F0A','#64D2FF','#BF5AF2',
+  '#FF6B35','#30B0C7','#E8175D','#FFD60A','#FF453A',
+  '#636366','#32ADE6','#34C759','#AF52DE','#FF3B30',
+  '#5AC8FA','#FFCC00','#FF9500',
+];
+
+const DEFAULT_SEGMENTS = [
+  {label:'ดื่ม 1 แก้ว 🍺', color:'#FF2D55'},
+  {label:'รอดแล้ว! 🎉', color:'#30D158'},
+  {label:'ดื่ม 2 แก้ว 🍻', color:'#FF9F0A'},
+  {label:'คนซ้ายดื่ม 👈', color:'#64D2FF'},
+  {label:'ทุกคนดื่ม! 🥳', color:'#BF5AF2'},
+  {label:'เล่าเรื่องตลก 🤣', color:'#FF6B35'},
+  {label:'คนขวาดื่ม 👉', color:'#30B0C7'},
+  {label:'ดื่มครึ่งแก้ว 🍷', color:'#E8175D'},
+  {label:'ท้าคนอื่นดื่ม 💪', color:'#FFD60A'},
+  {label:'ดื่ม 3 แก้ว 🔥', color:'#FF453A'},
+  {label:'ข้ามรอบนี้ 😅', color:'#636366'},
+  {label:'สุ่มคนดื่ม 🎲', color:'#32ADE6'},
+];
+
+let segments = JSON.parse(localStorage.getItem('wl_segments')) || DEFAULT_SEGMENTS.map(s=>({...s}));
+let players = JSON.parse(localStorage.getItem('wl_players')) || [];
+let history = JSON.parse(localStorage.getItem('wl_history')) || [];
+let stats = JSON.parse(localStorage.getItem('wl_stats')) || {spin:0,drink:0,safe:0};
+
+let currentPlayer = 0;
+let spinning = false;
+let angle = 0;
+
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
+
+// ============ DRAW ============
+function drawWheel(rot) {
+  const N = segments.length;
+  if (N === 0) return;
+  const arc = (2 * Math.PI) / N;
+  const cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 6;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // outer ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 4, 0, 2 * Math.PI);
+  ctx.fillStyle = 'rgba(255,255,255,0.05)';
+  ctx.fill();
+
+  for (let i = 0; i < N; i++) {
+    const start = rot + i * arc;
+    const end = start + arc;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = segments[i].color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    const fontSize = N > 16 ? 11 : N > 12 ? 12 : 13;
+    ctx.font = `600 ${fontSize}px 'Kanit', sans-serif`;
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 4;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const txt = segments[i].label.length > 18 ? segments[i].label.slice(0,17)+'…' : segments[i].label;
+    ctx.fillText(txt, r - 12, 0);
+    ctx.restore();
+  }
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 30, 0, 2 * Math.PI);
+  const g = ctx.createRadialGradient(cx,cy,0,cx,cy,30);
+  g.addColorStop(0,'#2a2a3a');
+  g.addColorStop(1,'#111122');
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.font = '22px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🎯', cx, cy);
+}
+
+drawWheel(angle);
+
+// ============ SPIN ============
+function spin() {
+  if (spinning || segments.length === 0) return;
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+
+  // If players exist, pick one
+  let pickedPlayer = null;
+  if (players.length > 0) {
+    pickedPlayer = flashPlayer(() => {
+      doSpin(pickedPlayer);
+    });
+    return;
+  }
+  doSpin(null);
+}
+
+function doSpin(player) {
+  const extraSpins = 6 + Math.floor(Math.random() * 6);
+  const extraAngle = Math.random() * 2 * Math.PI;
+  const total = extraSpins * 2 * Math.PI + extraAngle;
+  const duration = 3200 + Math.random() * 1800;
+  const start = angle;
+  const t0 = performance.now();
+
+  playTickSound();
+
+  function ease(t) { return 1 - Math.pow(1 - t, 4); }
+
+  let lastTick = 0;
+  function animate(now) {
+    const elapsed = now - t0;
+    const t = Math.min(elapsed / duration, 1);
+    angle = start + total * ease(t);
+    drawWheel(angle);
+
+    // tick sound
+    const progress = ease(t);
+    const tickInterval = 80 + progress * 300;
+    if (now - lastTick > tickInterval) {
+      if (t < 0.95) playTickSound();
+      lastTick = now;
+    }
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      spinning = false;
+      document.getElementById('spinBtn').disabled = false;
+      showResult(player);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function getResult() {
+  const N = segments.length;
+  const arc = (2 * Math.PI) / N;
+  let a = ((-angle - Math.PI/2) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+  return segments[Math.floor(a / arc) % N];
+}
+
+function showResult(player) {
+  const seg = getResult();
+  const label = seg.label;
+  const isSafe = label.includes('รอด') || label.includes('ข้าม');
+  const isDrink = label.includes('ดื่ม') || label.includes('แก้ว');
+
+  // Stats
+  stats.spin++;
+  if (isSafe) stats.safe++;
+  if (isDrink) stats.drink++;
+  updateStats();
+  saveData();
+
+  // Result card
+  const rt = document.getElementById('resultText');
+  const rc = document.getElementById('resultCard');
+  const rp = document.getElementById('resultPlayer');
+  rt.textContent = label;
+  rp.textContent = player ? `👤 ${player}` : '';
+  rc.style.borderColor = seg.color + '80';
+  rc.style.background = seg.color + '18';
+  rt.classList.remove('pop');
+  void rt.offsetWidth;
+  rt.classList.add('pop');
+
+  // History
+  addHistory(label, player, seg.color);
+
+  // Modal
+  const emoji = label.match(/\p{Emoji}/u)?.[0] || '🎯';
+  const text = label.replace(/\p{Emoji}/gu,'').trim();
+  document.getElementById('modalEmoji').textContent = emoji;
+  document.getElementById('modalAction').textContent = text;
+  document.getElementById('modalPlayer').textContent = player ? `สำหรับ ${player} 🎯` : '';
+  document.getElementById('resultModal').classList.add('show');
+
+  playResultSound(isSafe);
+
+  // Advance player turn
+  if (players.length > 0) {
+    currentPlayer = (currentPlayer + 1) % players.length;
+    renderPlayers();
+  }
+}
+
+function closeModal() {
+  document.getElementById('resultModal').classList.remove('show');
+}
+
+// ============ PLAYER FLASH ============
+function flashPlayer(cb) {
+  const chips = document.querySelectorAll('.player-chip');
+  if (!chips.length) { cb(null); return null; }
+  let i = 0;
+  const chosen = Math.floor(Math.random() * players.length);
+  let count = 0;
+  const max = 20 + chosen;
+  const iv = setInterval(() => {
+    chips.forEach(c => c.classList.remove('flash'));
+    chips[i % players.length].classList.add('flash');
+    i++;
+    count++;
+    if (count > max) {
+      clearInterval(iv);
+      chips.forEach(c => c.classList.remove('flash'));
+      const idx = chosen % players.length;
+      chips[idx].classList.add('active');
+      setTimeout(() => {
+        chips[idx].classList.remove('active');
+        doSpin(players[idx]);
+      }, 600);
+    }
+  }, 80);
+  return players[chosen % players.length];
+}
+
+// ============ PLAYERS ============
+function renderPlayers() {
+  const g = document.getElementById('playersGrid');
+  if (players.length === 0) {
+    g.innerHTML = '<span style="color:var(--text2);font-size:0.82rem">ยังไม่มีผู้เล่น — เพิ่มชื่อด้านล่าง</span>';
+    return;
+  }
+  g.innerHTML = players.map((p, i) => `
+    <div class="player-chip ${i === currentPlayer ? 'active' : ''}" id="chip-${i}">
+      <div class="dot"></div>
+      ${p}
+      <button class="remove-player" onclick="removePlayer(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function addPlayer() {
+  const inp = document.getElementById('playerInput');
+  const name = inp.value.trim();
+  if (!name || players.includes(name)) { inp.value = ''; return; }
+  players.push(name);
+  inp.value = '';
+  renderPlayers();
+  saveData();
+}
+
+function removePlayer(i) {
+  players.splice(i, 1);
+  if (currentPlayer >= players.length) currentPlayer = 0;
+  renderPlayers();
+  saveData();
+}
+
+// ============ HISTORY ============
+function addHistory(label, player, color) {
+  history.unshift({label, player, color, time: Date.now()});
+  if (history.length > 50) history.pop();
+  renderHistory();
+  saveData();
+}
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (history.length === 0) {
+    el.innerHTML = '<div style="color:var(--text2);font-size:0.82rem;text-align:center;padding:12px">ยังไม่มีผล</div>';
+    return;
+  }
+  el.innerHTML = history.slice(0,20).map((h,i) => `
+    <div class="history-item">
+      <span class="hi-num">${i+1}</span>
+      <span class="hi-dot" style="background:${h.color}"></span>
+      <span class="hi-text">${h.label}</span>
+      ${h.player ? `<span class="hi-player">${h.player}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function clearHistory() {
+  history = []; stats = {spin:0,drink:0,safe:0};
+  renderHistory(); updateStats(); saveData();
+}
+
+// ============ STATS ============
+function updateStats() {
+  document.getElementById('statSpin').textContent = stats.spin;
+  document.getElementById('statDrink').textContent = stats.drink;
+  document.getElementById('statSafe').textContent = stats.safe;
+}
+
+// ============ SEGMENTS ============
+function renderSegList() {
+  const el = document.getElementById('segList');
+  el.innerHTML = segments.map((s,i) => `
+    <div class="seg-row">
+      <input type="color" class="seg-color" value="${s.color}" onchange="changeSegColor(${i},this.value)" title="เปลี่ยนสี">
+      <input type="text" class="seg-input" value="${s.label}" maxlength="30"
+        onchange="changeSegLabel(${i},this.value)" onblur="changeSegLabel(${i},this.value)">
+      <button class="seg-del" onclick="removeSeg(${i})">🗑</button>
+    </div>
+  `).join('');
+  document.getElementById('segCount').textContent = segments.length + ' ช่อง';
+}
+
+function changeSegLabel(i, v) {
+  segments[i].label = v;
+  drawWheel(angle);
+  saveData();
+}
+
+function changeSegColor(i, v) {
+  segments[i].color = v;
+  drawWheel(angle);
+  saveData();
+}
+
+function removeSeg(i) {
+  if (segments.length <= 2) return alert('ต้องมีอย่างน้อย 2 ช่อง!');
+  segments.splice(i, 1);
+  renderSegList();
+  drawWheel(angle);
+  saveData();
+}
+
+function addSegment() {
+  const inp = document.getElementById('segInput');
+  const label = inp.value.trim();
+  if (!label) return;
+  const color = COLORS[segments.length % COLORS.length];
+  segments.push({label, color});
+  inp.value = '';
+  renderSegList();
+  drawWheel(angle);
+  saveData();
+}
+
+function resetSegments() {
+  if (!confirm('รีเซ็ตช่องทั้งหมดกลับเป็นค่าเริ่มต้น?')) return;
+  segments = DEFAULT_SEGMENTS.map(s=>({...s}));
+  renderSegList();
+  drawWheel(angle);
+  saveData();
+}
+
+// ============ SOUND ============
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTickSound() {
+  if (!document.getElementById('soundToggle').checked) return;
+  try {
+    const ac = getAudio();
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.value = 800 + Math.random()*400;
+    o.type = 'sine';
+    g.gain.setValueAtTime(0.06, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.04);
+    o.start(); o.stop(ac.currentTime + 0.04);
+  } catch(e){}
+}
+
+function playResultSound(safe) {
+  if (!document.getElementById('soundToggle').checked) return;
+  try {
+    const ac = getAudio();
+    const freqs = safe ? [523,659,784,1047] : [300,250,200,150];
+    freqs.forEach((f, i) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.frequency.value = f;
+      o.type = safe ? 'sine' : 'sawtooth';
+      const t = ac.currentTime + i * 0.12;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.15, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      o.start(t); o.stop(t + 0.3);
+    });
+  } catch(e){}
+}
+
+// ============ TABS ============
+function switchTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ============ SAVE ============
+function saveData() {
+  localStorage.setItem('wl_segments', JSON.stringify(segments));
+  localStorage.setItem('wl_players', JSON.stringify(players));
+  localStorage.setItem('wl_history', JSON.stringify(history));
+  localStorage.setItem('wl_stats', JSON.stringify(stats));
+}
+
+// ============ INIT ============
+renderPlayers();
+renderHistory();
+renderSegList();
+updateStats();
+
+// Enter key for player/segment
+document.getElementById('playerInput').addEventListener('keydown', e => { if(e.key==='Enter') addPlayer(); });
+document.getElementById('segInput').addEventListener('keydown', e => { if(e.key==='Enter') addSegment(); });
+document.getElementById('resultModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+</script>
+</body>
+</html>
